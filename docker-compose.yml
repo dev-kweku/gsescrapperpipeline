@@ -1,0 +1,121 @@
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: gse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${DB_NAME:-gse_stocks}
+      POSTGRES_USER:     ${DB_USER:-gse_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gse_user} -d ${DB_NAME:-gse_stocks}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [gse-net]
+    command: >
+      postgres
+        -c max_connections=100
+        -c shared_buffers=256MB
+        -c effective_cache_size=768MB
+        -c wal_level=minimal
+        -c max_wal_senders=0
+
+  # ── Redis (cache) ─────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: gse-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --save ""
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks: [gse-net]
+
+  # ── Migration runner ──────────────────────────────────────────────
+  migrate:
+    build: { context: ., dockerfile: Dockerfile }
+    container_name: gse-migrate
+    depends_on:
+      postgres: { condition: service_healthy }
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+    command: alembic upgrade head
+    networks: [gse-net]
+    restart: "no"
+
+  # ── GSE Scraper + FastAPI ─────────────────────────────────────────
+  app:
+    build: { context: ., dockerfile: Dockerfile }
+    container_name: gse-app
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+      migrate:  { condition: service_completed_successfully }
+    env_file: .env
+    environment:
+      DB_HOST:       postgres
+      DB_PORT:       5432
+      REDIS_URL:     redis://redis:6379/0
+      CACHE_ENABLED: "true"
+      LOG_JSON:      "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - app-logs:/app/logs
+    networks: [gse-net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Nginx reverse proxy ────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: gse-nginx
+    restart: unless-stopped
+    profiles: ["production"]
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [gse-net]
+
+  # ── pgAdmin (dev only) ─────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: gse-pgadmin
+    restart: unless-stopped
+    profiles: ["dev"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL:    admin@gse.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on: [postgres]
+    networks: [gse-net]
+
+volumes:
+  pgdata:    { driver: local }
+  app-logs:  { driver: local }
+
+networks:
+  gse-net:   { driver: bridge }

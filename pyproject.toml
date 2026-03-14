@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "gse-scraper"
+version = "2.0.0"
+description = "GSE Stock Data Scraper — Python/FastAPI/PostgreSQL Production Pipeline for FrimpTradingData"
+requires-python = ">=3.12"
+
+dependencies = [
+    # Web framework
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+
+    # Database — async
+    "asyncpg==0.30.0",
+    "sqlalchemy[asyncio]==2.0.36",
+    "alembic==1.14.0",
+
+    # HTTP client — async
+    "httpx[http2]==0.28.0",
+    "tenacity==9.0.0",
+
+    # Scheduling
+    "apscheduler==3.10.4",
+    "pytz==2024.2",
+
+    # Validation & settings
+    "pydantic==2.10.3",
+    "pydantic-settings==2.6.1",
+
+    # Parsing
+    "beautifulsoup4==4.12.3",
+    "lxml==5.3.0",
+
+    # Caching
+    "redis[hiredis]==5.2.1",
+
+    # Utilities
+    "python-dateutil==2.9.0",
+    "orjson==3.10.12",
+    "structlog==24.4.0",
+    "python-dotenv==1.0.1",
+    "holidays==0.59",
+
+    # Alerting
+    "aiosmtplib==3.0.2",
+    "httpx==0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.0.0",
+    "httpx==0.28.0",
+    "anyio==4.7.0",
+    "ruff==0.8.3",
+    "mypy==1.13.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

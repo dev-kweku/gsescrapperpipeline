@@ -1,0 +1,42 @@
+# ── Web Framework ──────────────────────────────────────────────
+fastapi
+uvicorn[standard]         # includes uvloop + httptools
+
+# ── Database (async) ───────────────────────────────────────────
+asyncpg                    # fast async PostgreSQL driver
+sqlalchemy[asyncio]       # ORM + async engine
+alembic                   # database migrations
+psycopg2-binary           # required by alembic sync runner
+
+# ── HTTP Client (async) ────────────────────────────────────────
+httpx[http2]             # async HTTP client with HTTP/2
+tenacity                   # retry logic with exponential back-off
+
+# ── Scheduling ─────────────────────────────────────────────────
+apscheduler               # cron-based job scheduler
+pytz                      # timezone support for scheduler
+
+# ── Validation & Settings ──────────────────────────────────────
+pydantic                  # data validation
+pydantic-settings          # .env file → typed settings
+python-dotenv            # .env loader
+
+# ── HTML Parsing ───────────────────────────────────────────────
+beautifulsoup4            # HTML parsing for nonce extraction
+lxml                        # fast HTML/XML parser backend
+
+# ── Caching ────────────────────────────────────────────────────
+redis[hiredis]             # async Redis client + hiredis speedup
+
+# ── Serialisation ──────────────────────────────────────────────
+orjson                  # fast JSON (2-3x faster than stdlib)
+
+# ── Logging ────────────────────────────────────────────────────
+structlog                 # structured logging
+
+# ── Utilities ──────────────────────────────────────────────────
+python-dateutil          # date parsing helpers
+holidays                   # Ghana public holiday detection (offline)
+
+# ── Alerting ───────────────────────────────────────────────────
+aiosmtplib                # async SMTP email sender

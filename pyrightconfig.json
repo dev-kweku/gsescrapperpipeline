@@ -1,0 +1,18 @@
+    {
+    "pythonVersion": "3.12",
+    "venvPath": ".",
+    "venv": "venv",
+    "include": ["app", "migrations", "tests"],
+    "exclude": ["**/__pycache__", "**/*.pyc"],
+    "typeCheckingMode": "basic",
+    "reportMissingImports": true,
+    "reportMissingModuleSource": false,
+    "reportAttributeAccessIssue": true,
+    "executionEnvironments": [
+        {
+        "root": ".",
+        "pythonVersion": "3.11",
+        "extraPaths": ["."]
+        }
+    ]
+    }
