@@ -40,7 +40,7 @@ def _build_engine() -> AsyncEngine:
         pool_recycle=1800,          # recycle connections every 30 min
         pool_pre_ping=True,         # test connection before checkout
         echo=settings.debug,
-        json_serializer=__import__("orjson").dumps,
+        json_serializer=lambda v: __import__("orjson").dumps(v).decode("utf-8"),
         json_deserializer=__import__("orjson").loads,
         connect_args={
             "server_settings": {

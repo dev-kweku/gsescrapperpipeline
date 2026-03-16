@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     )
 
     # ── App ────────────────────────────────────────────────────────────
-    app_name: str    = "GSE Stock Scraper — Frimpgsedata"
+    app_name: str    = "GSE Stock Scraper — ISEDAN"
     app_version: str = "2.0.0"
     environment: Literal["development", "staging", "production"] = "production"
     debug: bool      = False
@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     gse_ajax_url:        str   = "https://gse.com.gh/wp-admin/admin-ajax.php"
     gse_page_url:        str   = "https://gse.com.gh/market-data/"
     gse_table_id:        str   = "39"
-    scraper_batch_size:  int   = 100
+    scraper_batch_size:  int   = 25   # GSE DataTable default page size
     scraper_concurrency: int   = 4
     scraper_timeout_s:   int   = 30
     scraper_max_retries: int   = 5

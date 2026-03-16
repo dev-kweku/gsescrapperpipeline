@@ -11,3 +11,69 @@
 {"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:41:42.546278Z"}
 {"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:41:42.593284Z"}
 {"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T00:41:42.594284Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T00:55:21.386057Z"}
+{"healthy":true,"server_time":"2026-03-16 00:55:24.174811+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:55:24.222170Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T00:55:26.236009Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.074093Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.085728Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.085728Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:55:30.086952Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T00:55:30.086952Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T00:59:06.192650Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:59:06.193649Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:59:06.207862Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:59:06.234167Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T00:59:06.234167Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:00:47.253794Z"}
+{"healthy":true,"server_time":"2026-03-16 01:00:49.492667+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:00:49.500375Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:00:50.013540Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.141573Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.142570Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:04:40.986322Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:04:40.987327Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $12: b'{}' ('bytes' object has no attribute 'encode')\n[SQL: INSERT INTO gse.scrape_jobs (job_id, job_type, status, target_date, total_pages, total_records, records_inserted, records_updated, records_skipped, error_message, error_stack, metadata, started_at, completed_at) VALUES ($1::UUID, $2::VARCHAR, $3::gse.scrapestatus, $4::DATE, $5::INTEGER, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::INTEGER, $10::VARCHAR, $11::VARCHAR, $12::JSONB, $13::TIMESTAMP WITH TIME ZONE, $14::TIMESTAMP WITH TIME ZONE) RETURNING gse.scrape_jobs.id, gse.scrape_jobs.created_at]\n[parameters: (UUID('d45955a3-eac3-49e2-a037-f61523020e8e'), 'historical', 'RUNNING', datetime.date(2026, 3, 13), 0, 0, 0, 0, 0, None, None, b'{}', datetime.datetime(2026, 3, 16, 1, 4, 40, 988324, tzinfo=datetime.timezone.utc), None)]\n(Background on this error at: https://sqlalche.me/e/20/dbapi)","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T01:04:41.758607Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:40.003523Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:08:40.004562Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:08:40.005565Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:08:40.007561Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:40.008563Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:44.220072Z"}
+{"healthy":true,"server_time":"2026-03-16 01:08:46.451836+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:08:46.457162Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:08:47.111069Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:17:30.880354Z"}
+{"healthy":true,"server_time":"2026-03-16 01:17:33.100508+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:17:33.105324Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:33.673214Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.990807Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.991809Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.992806Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:17:36.993383Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T01:17:36.993383Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.429983Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.430985Z"}
+{"job_id":"4cd01ff8-b770-426e-971a-34127a3cc158","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.566709Z"}
+{"error":"","event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.513051Z"}
+{"event":"nonce_using_fallback","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.513644Z"}
+{"batch_size":100,"event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.514729Z"}
+{"error":"Server disconnected","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:20:21.167456Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Server disconnected","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T01:20:21.748492Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T01:21:51.643629Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:21:51.643629Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:21:51.644632Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:21:51.647630Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T01:21:51.647630Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T02:12:16.546936Z"}
+{"healthy":true,"server_time":"2026-03-16 02:12:21.051986+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:12:21.081146Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:12:35.446032Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.335758Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.367335Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.367335Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:12:50.368338Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T02:12:50.368338Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T02:21:49.379835Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:21:49.380835Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:21:49.431834Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:21:49.478800Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T02:21:49.479791Z"}

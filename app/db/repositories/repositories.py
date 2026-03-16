@@ -201,7 +201,7 @@ class PriceRepository:
                 price_change,
                 CASE WHEN previous_closing_price_vwap > 0
                      THEN ROUND((price_change / previous_closing_price_vwap) * 100, 2)
-                        ELSE NULL END AS pct_change,
+                     ELSE NULL END AS pct_change,
                 total_shares_traded,
                 total_value_traded
             FROM day
@@ -218,7 +218,7 @@ class JobRepository:
     async def create(self, job_type: str = "daily", target_date: date | None = None) -> ScrapeJob:
         job = ScrapeJob(
             job_type=job_type,
-            status=ScrapeStatus.RUNNING,
+            status="running",
             target_date=target_date,
             started_at=datetime.now(timezone.utc),
         )
@@ -231,7 +231,7 @@ class JobRepository:
             update(ScrapeJob)
             .where(ScrapeJob.job_id == job_id)
             .values(
-                status=ScrapeStatus.COMPLETED,
+                status="completed",
                 total_pages=stats.get("total_pages", 0),
                 total_records=stats.get("total_records", 0),
                 records_inserted=stats.get("inserted", 0),
@@ -246,7 +246,7 @@ class JobRepository:
             update(ScrapeJob)
             .where(ScrapeJob.job_id == job_id)
             .values(
-                status=ScrapeStatus.FAILED,
+                status="failed",
                 error_message=str(exc)[:1000],
                 error_stack=traceback.format_exc()[:2000],
                 completed_at=datetime.now(timezone.utc),
@@ -257,7 +257,7 @@ class JobRepository:
         await self.session.execute(
             update(ScrapeJob)
             .where(ScrapeJob.job_id == job_id)
-            .values(status=ScrapeStatus.SKIPPED, error_message=reason, completed_at=datetime.now(timezone.utc))
+            .values(status="skipped", error_message=reason, completed_at=datetime.now(timezone.utc))
         )
 
     async def get_recent(self, limit: int = 20) -> list[ScrapeJob]:
