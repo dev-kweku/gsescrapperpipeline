@@ -19,7 +19,19 @@ from app.db.repositories.repositories import (
     PriceRepository,
     StockRepository,
 )
-from app.scraper.gse_scraper import scrape_gse
+from app.scraper.gse_scraper import ScrapeResult, scrape_gse
+
+async def _scrape_with_fallback(mode: str, target_date: str | None) -> ScrapeResult:
+    """Try httpx scraper first, fall back to Playwright on 403."""
+    import httpx
+    try:
+        return await scrape_gse(mode=mode, target_date=target_date)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 403:
+            log.warning("httpx_403_falling_back_to_browser")
+            from app.scraper.browser_scraper import scrape_gse_browser
+            return await scrape_gse_browser(mode=mode, target_date=target_date)
+        raise
 from app.utils.alerting import send_failure_alert, send_success_alert
 
 log = get_logger(__name__)
@@ -132,7 +144,7 @@ async def _run_live(
 
         try:
             scrape_mode = "all" if mode == "historical" else "latest"
-            result = await scrape_gse(mode=scrape_mode, target_date=scrape_date_str)
+            result = await _scrape_with_fallback(mode=scrape_mode, target_date=scrape_date_str)
             log.info("scrape_complete", parsed=result.parsed_count, errors=result.error_count)
 
             # Log parse errors against the job

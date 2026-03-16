@@ -18,6 +18,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+        frozen=False,   # allow runtime mutation for session refresh endpoint
     )
 
     # ── App ────────────────────────────────────────────────────────────
@@ -72,6 +73,12 @@ class Settings(BaseSettings):
     cache_enabled: bool = True
 
     # ── Scraper ────────────────────────────────────────────────────────
+    # Browser session override — copy from Chrome DevTools after visiting
+    # https://gse.com.gh/market-data/ when Cloudflare blocks automated fetches.
+    gse_nonce:      str | None = None   # wdtNonce value from browser request payload
+    gse_cookies:    str | None = None   # full Cookie header string from browser
+    gse_user_agent: str | None = None   # exact browser User-Agent (must match cf_clearance)
+
     gse_ajax_url:        str   = "https://gse.com.gh/wp-admin/admin-ajax.php"
     gse_page_url:        str   = "https://gse.com.gh/market-data/"
     gse_table_id:        str   = "39"
@@ -118,4 +125,6 @@ def get_settings() -> Settings:
     return Settings()
 
 
-settings = get_settings()
+# Explicit type annotation so Pylance resolves all attribute accesses correctly.
+# Without this, lru_cache wrapping causes Pylance to infer settings as Unknown.
+settings: Settings = get_settings()
