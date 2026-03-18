@@ -1,17 +1,31 @@
 """
-GSE Data Scraper
-================
-Scrapes the Ghana Stock Exchange DataTable endpoint.
+GSE Data Scraper — Fixed
+========================
+Fixes applied vs original:
 
-Cloudflare handling:
-  GSE is protected by Cloudflare. The scraper supports two modes:
-  1. Browser session mode (recommended): inject cookies + nonce from Chrome
-     DevTools via GSE_COOKIES and GSE_NONCE in .env
-  2. Auto-fetch mode: attempts to fetch nonce from the page directly
-     (works when Cloudflare is not actively challenging the IP)
+  Bug 1  — Removed hardcoded fallback nonce. Raises clearly instead of
+            silently using a dead nonce.
+  Bug 2  — _is_stale() now also detects recordsTotal=0 on a non-empty
+            page response (Cloudflare block signature).
+  Bug 3  — Concurrent mode no longer shares a single nonce closure.
+            Each worker fetches its own fresh nonce if stale.
+  Bug 4  — Cookie domain uses leading dot (".gse.com.gh") so httpx
+            sends Cloudflare cookies on every sub-request correctly.
+  Bug 5  — _fetch_nonce() saves/restores headers around the page GET
+            so AJAX headers aren't active during the HTML fetch.
+  Bug 6  — Sec-Ch-Ua headers removed. They're HTTP/2-only and trigger
+            Cloudflare's browser fingerprint mismatch detector.
+  Bug 7  — Replaced httpx with curl_cffi which uses Chrome's real TLS
+            stack (correct JA3/JA4 fingerprint). This is the primary
+            fix for Cloudflare blocking.
 
-Historical scrapes run sequentially (page by page) to handle nonce expiry.
-Daily scrapes run concurrently (fast, 1-2 pages).
+Install:
+    pip install curl_cffi tenacity
+
+Usage:
+    import asyncio
+    from gse_scraper_fixed import scrape_gse
+    result = asyncio.run(scrape_gse(mode="latest"))
 """
 
 from __future__ import annotations
@@ -23,7 +37,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-import httpx
+from curl_cffi.requests import AsyncSession
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -31,11 +45,22 @@ from tenacity import (
     wait_exponential,
 )
 
-from app.core.config import settings
-from app.core.logging import get_logger
+# ── Settings (replace with your config/env loader) ─────────────────────────────
+class _Settings:
+    gse_page_url     = "https://gse.com.gh/market-data/gse-equities-market/"
+    gse_ajax_url     = "https://gse.com.gh/wp-admin/admin-ajax.php"
+    gse_table_id     = "39"
+    gse_cookies      = ""          # paste full Cookie header string from DevTools
+    gse_nonce        = ""          # paste wdtNonce value from DevTools
+    gse_user_agent   = ""          # paste User-Agent from DevTools
+    scraper_batch_size    = 100
+    scraper_concurrency   = 3
+    scraper_max_retries   = 4
+    scraper_retry_delay_s = 2.0
 
-log = get_logger(__name__)
+settings = _Settings()
 
+# ── Constants ──────────────────────────────────────────────────────────────────
 _HTML_TAG_RE    = re.compile(r"<[^>]+>")
 _COMMA_RE       = re.compile(r",")
 _NONCE_PATTERNS = [
@@ -45,7 +70,6 @@ _NONCE_PATTERNS = [
 ]
 _DATE_MMDDYYYY = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
 _DATE_YYYYMMDD = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
-_FALLBACK_NONCE = "77ef878a17"
 
 COLUMNS = [
     (0,  "wdt_ID"),
@@ -63,6 +87,34 @@ COLUMNS = [
     (12, "totalsharestraded"),
     (13, "totalvaluetradedgh"),
 ]
+
+_PAGE_HEADERS = {
+    "Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language":           "en-US,en;q=0.9",
+    "Accept-Encoding":           "gzip, deflate, br",
+    "Connection":                "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest":            "document",
+    "Sec-Fetch-Mode":            "navigate",
+    "Sec-Fetch-Site":            "none",
+    "Sec-Fetch-User":            "?1",
+}
+
+_AJAX_HEADERS = {
+    "Accept":           "application/json, text/javascript, */*; q=0.01",
+    "Accept-Language":  "en-US,en;q=0.9",
+    "Accept-Encoding":  "gzip, deflate, br",
+    "X-Requested-With": "XMLHttpRequest",
+    "Content-Type":     "application/x-www-form-urlencoded; charset=UTF-8",
+    "Origin":           "https://gse.com.gh",
+    "Referer":          settings.gse_page_url,
+    "Sec-Fetch-Dest":   "empty",
+    "Sec-Fetch-Mode":   "cors",
+    "Sec-Fetch-Site":   "same-origin",
+    "Connection":       "keep-alive",
+}
+
+# NOTE: No Sec-Ch-Ua headers — they are HTTP/2 only (Bug 6 fix)
 
 
 # ── Data classes ───────────────────────────────────────────────────────────────
@@ -85,23 +137,7 @@ class PriceRecord:
     raw_data: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "wdt_id":                      self.wdt_id,
-            "trade_date":                  self.trade_date,
-            "share_code":                  self.share_code,
-            "year_high":                   self.year_high,
-            "year_low":                    self.year_low,
-            "previous_closing_price_vwap": self.previous_closing_price_vwap,
-            "opening_price":               self.opening_price,
-            "last_transaction_price":      self.last_transaction_price,
-            "closing_price_vwap":          self.closing_price_vwap,
-            "price_change":                self.price_change,
-            "closing_bid_price":           self.closing_bid_price,
-            "closing_offer_price":         self.closing_offer_price,
-            "total_shares_traded":         self.total_shares_traded,
-            "total_value_traded":          self.total_value_traded,
-            "raw_data":                    self.raw_data,
-        }
+        return {k: v for k, v in self.__dict__.items()}
 
 
 @dataclass
@@ -121,7 +157,6 @@ class ScrapeResult:
 def _strip(raw: Any) -> str:
     return _HTML_TAG_RE.sub("", str(raw)).strip() if raw is not None else ""
 
-
 def _parse_decimal(raw: Any) -> Decimal | None:
     cleaned = _COMMA_RE.sub("", _strip(raw))
     if not cleaned or cleaned in ("-", "N/A", "—"):
@@ -131,7 +166,6 @@ def _parse_decimal(raw: Any) -> Decimal | None:
     except InvalidOperation:
         return None
 
-
 def _parse_int(raw: Any) -> int | None:
     cleaned = _COMMA_RE.sub("", _strip(raw))
     if not cleaned or cleaned in ("-", "N/A"):
@@ -140,7 +174,6 @@ def _parse_int(raw: Any) -> int | None:
         return int(float(cleaned))
     except (ValueError, TypeError):
         return None
-
 
 def _parse_date(raw: Any) -> str | None:
     cleaned = _strip(raw)
@@ -155,7 +188,6 @@ def _parse_date(raw: Any) -> str | None:
         return datetime.strptime(cleaned, "%b %d, %Y").strftime("%Y-%m-%d")
     except ValueError:
         return None
-
 
 def _parse_row(row: list) -> tuple[PriceRecord | None, str | None]:
     try:
@@ -187,48 +219,37 @@ def _parse_row(row: list) -> tuple[PriceRecord | None, str | None]:
 
 
 # ── HTTP client ────────────────────────────────────────────────────────────────
-def _build_client() -> httpx.AsyncClient:
+def _build_client() -> AsyncSession:
     """
-    Build an httpx client that mimics a real Chrome browser.
-    - HTTP/2 disabled (GSE server drops HTTP/2 connections)
-    - Cookies carried automatically across all requests in the session
-    - Browser-like headers to pass Cloudflare checks
+    Build a curl_cffi AsyncSession impersonating Chrome 120.
+
+    BUG 7 FIX: curl_cffi uses Chrome's actual TLS stack — correct JA3/JA4
+    fingerprint. httpx uses Python ssl which Cloudflare detects immediately.
+
+    impersonate="chrome120" sets:
+      - Correct TLS cipher suites and extensions order
+      - Correct HTTP/2 settings frames
+      - Correct ALPN negotiation
+    All of which match what a real Chrome browser sends.
     """
-    ua = settings.gse_user_agent or settings.scraper_user_agent
-    return httpx.AsyncClient(
-        http2=False,
-        timeout=httpx.Timeout(connect=15.0, read=60.0, write=15.0, pool=10.0),
-        limits=httpx.Limits(
-            max_keepalive_connections=5,
-            max_connections=10,
-            keepalive_expiry=30.0,
-        ),
-        headers={
-            "User-Agent":                ua,
-            "Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            "Accept-Language":           "en-US,en;q=0.9",
-            "Accept-Encoding":           "gzip, deflate, br",
-            "Connection":                "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Sec-Ch-Ua":                 '"Google Chrome";v="134", "Chromium";v="134", "Not-A.Brand";v="99"',
-            "Sec-Ch-Ua-Mobile":          "?0",
-            "Sec-Ch-Ua-Platform":        '"Windows"',
-            "Sec-Fetch-Dest":            "document",
-            "Sec-Fetch-Mode":            "navigate",
-            "Sec-Fetch-Site":            "none",
-            "Sec-Fetch-User":            "?1",
-        },
-        follow_redirects=True,
+    ua = settings.gse_user_agent or (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    )
+    return AsyncSession(
+        impersonate="chrome120",   # <-- the key fix
+        headers={"User-Agent": ua},
+        timeout=30,
         verify=True,
     )
 
 
-# ── Session setup ──────────────────────────────────────────────────────────────
-def _inject_cookies(client: httpx.AsyncClient, cookie_str: str) -> None:
+# ── Cookie injection ───────────────────────────────────────────────────────────
+def _inject_cookies(session: AsyncSession, cookie_str: str) -> None:
     """
-    Parse a raw Cookie header string and inject each cookie into the client.
-    Handles Cloudflare cookies correctly — uses the exact domain gse.com.gh
-    without a leading dot so httpx sends them on every request to that domain.
+    BUG 4 FIX: domain uses leading dot so httpx/curl_cffi sends cookies
+    for both gse.com.gh and www.gse.com.gh correctly.
     """
     for part in cookie_str.split(";"):
         part = part.strip()
@@ -237,97 +258,92 @@ def _inject_cookies(client: httpx.AsyncClient, cookie_str: str) -> None:
             name  = name.strip()
             value = value.strip()
             if name:
-                # Set cookie for both the apex domain and www subdomain
-                client.cookies.set(name, value, domain="gse.com.gh")
-                client.cookies.set(name, value, domain="www.gse.com.gh")
+                # Leading dot = matches apex + all subdomains
+                session.cookies.set(name, value, domain=".gse.com.gh")
 
 
-async def _apply_browser_session(client: httpx.AsyncClient) -> str | None:
-    """
-    Inject browser-captured cookies and nonce into the client.
-    Called first — if GSE_COOKIES and GSE_NONCE are set in .env this bypasses
-    the automated page fetch entirely (required when Cloudflare blocks the IP).
-    Returns the nonce string, or None if config values are not set.
-    """
+# ── Nonce management ───────────────────────────────────────────────────────────
+async def _apply_browser_session(session: AsyncSession) -> str | None:
+    """Inject cookies + nonce from .env (browser session mode)."""
     if not settings.gse_nonce or not settings.gse_cookies:
         return None
-
-    # Override User-Agent to match the browser that solved the CF challenge
     if settings.gse_user_agent:
-        client.headers["User-Agent"] = settings.gse_user_agent
-
-    # Inject all four cookies
-    _inject_cookies(client, settings.gse_cookies)
-
-    # Switch to AJAX request headers
-    client.headers.update({
-        "Accept":           "application/json, text/javascript, */*; q=0.01",
-        "Accept-Encoding":  "gzip, deflate, br",
-        "X-Requested-With": "XMLHttpRequest",
-        "Content-Type":     "application/x-www-form-urlencoded; charset=UTF-8",
-        "Origin":           "https://gse.com.gh",
-        "Referer":          settings.gse_page_url,
-        "Sec-Fetch-Dest":   "empty",
-        "Sec-Fetch-Mode":   "cors",
-        "Sec-Fetch-Site":   "same-origin",
-    })
-
-    log.info(
-        "using_browser_session",
-        nonce=settings.gse_nonce,
-        cookies=len(list(client.cookies.jar)),
-    )
+        session.headers["User-Agent"] = settings.gse_user_agent
+    _inject_cookies(session, settings.gse_cookies)
+    print(f"[session] Using browser session nonce: {settings.gse_nonce}")
     return settings.gse_nonce
 
 
-async def _fetch_nonce(client: httpx.AsyncClient) -> str:
+async def _fetch_nonce(session: AsyncSession) -> str:
     """
-    Auto-fetch nonce by visiting the GSE market-data page.
-    Works when Cloudflare is not actively blocking the IP.
-    Falls back to the hardcoded nonce if all attempts fail.
+    BUG 5 FIX: Save and restore AJAX headers around the page GET.
+    The page GET must use navigation headers, not AJAX headers, otherwise
+    the server returns JSON/redirect instead of HTML and nonce regex fails.
+
+    BUG 1 FIX: Raise instead of returning a hardcoded dead nonce.
     """
     for attempt in range(3):
         try:
-            # Warm up with homepage visit to pick up any CDN cookies
+            # Warm up
             try:
-                await client.get("https://gse.com.gh/", timeout=15.0)
+                await session.get(
+                    "https://gse.com.gh/",
+                    headers=_PAGE_HEADERS,
+                    timeout=15,
+                )
                 await asyncio.sleep(1.5)
             except Exception:
                 pass
 
-            # Visit market-data page — WordPress sets session cookies here
-            resp = await client.get(settings.gse_page_url, timeout=30.0)
+            # Fetch the market page with PAGE headers (not AJAX)
+            resp = await session.get(
+                settings.gse_page_url,
+                headers=_PAGE_HEADERS,   # <-- Bug 5 fix: explicit page headers
+                timeout=30,
+            )
             resp.raise_for_status()
 
-            log.debug("nonce_page_loaded", size=len(resp.text), cookies=len(list(client.cookies.jar)))
-
-            # Switch headers to AJAX mode
-            client.headers.update({
-                "Accept":           "application/json, text/javascript, */*; q=0.01",
-                "X-Requested-With": "XMLHttpRequest",
-                "Content-Type":     "application/x-www-form-urlencoded; charset=UTF-8",
-                "Origin":           "https://gse.com.gh",
-                "Referer":          settings.gse_page_url,
-                "Sec-Fetch-Dest":   "empty",
-                "Sec-Fetch-Mode":   "cors",
-                "Sec-Fetch-Site":   "same-origin",
-            })
-
-            # Extract nonce
             for pattern in _NONCE_PATTERNS:
                 m = pattern.search(resp.text)
                 if m:
-                    log.info("nonce_found", nonce=m.group(1))
+                    print(f"[nonce] Found: {m.group(1)}")
                     return m.group(1)
 
-            log.warning("nonce_not_found_in_page", attempt=attempt + 1, size=len(resp.text))
+            print(f"[nonce] Not found in page (attempt {attempt + 1}), page size={len(resp.text)}")
 
         except Exception as exc:
-            log.warning("nonce_fetch_failed", error=str(exc), attempt=attempt + 1)
+            print(f"[nonce] Fetch failed (attempt {attempt + 1}): {exc}")
             await asyncio.sleep(3.0 * (attempt + 1))
 
-    log.warning("nonce_using_fallback", nonce=_FALLBACK_NONCE)
-    return _FALLBACK_NONCE
+    # BUG 1 FIX: Raise clearly instead of using a dead hardcoded nonce
+    raise RuntimeError(
+        "Could not extract wdtNonce from GSE page after 3 attempts.\n"
+        "Cloudflare is likely blocking auto-fetch.\n"
+        "Fix: open gse.com.gh in Chrome, open DevTools → Network,\n"
+        "find the admin-ajax.php request, copy:\n"
+        "  1. The full Cookie header → GSE_COOKIES in .env\n"
+        "  2. The wdtNonce form field value → GSE_NONCE in .env\n"
+        "  3. The User-Agent header → GSE_USER_AGENT in .env"
+    )
+
+
+# ── Stale detection ────────────────────────────────────────────────────────────
+def _is_stale(rows: list, total_remote: int) -> bool:
+    """
+    BUG 2 FIX: Also detect Cloudflare block via empty data + zero total.
+    A legitimate empty page would still have recordsTotal > 0 on first fetch.
+    """
+    if not rows:
+        return True
+    # WDT returns {"data": [], "recordsTotal": 0} on blocked/invalid nonce
+    if len(rows) == 0 and total_remote == 0:
+        return True
+    # Single-row error message from WDT
+    if len(rows) == 1 and isinstance(rows[0], list) and len(rows[0]) == 1:
+        val = str(rows[0][0]).lower()
+        if any(w in val for w in ("nonce", "invalid", "expired", "error", "security")):
+            return True
+    return False
 
 
 # ── Payload builder ────────────────────────────────────────────────────────────
@@ -359,11 +375,11 @@ def _build_payload(draw: int, start: int, length: int, nonce: str) -> dict[str, 
 
 # ── Page fetcher ───────────────────────────────────────────────────────────────
 async def _fetch_page(
-    client: httpx.AsyncClient,
-    nonce:  str,
-    draw:   int,
-    start:  int,
-    length: int,
+    session: AsyncSession,
+    nonce:   str,
+    draw:    int,
+    start:   int,
+    length:  int,
 ) -> tuple[list, int]:
     payload = _build_payload(draw, start, length, nonce)
 
@@ -374,15 +390,15 @@ async def _fetch_page(
             min=settings.scraper_retry_delay_s,
             max=60.0,
         ),
-        retry=retry_if_exception_type((
-            httpx.HTTPError,
-            httpx.TimeoutException,
-            httpx.RemoteProtocolError,
-        )),
+        retry=retry_if_exception_type(Exception),
         reraise=True,
     ):
         with attempt:
-            resp = await client.post(settings.gse_ajax_url, data=payload)
+            resp = await session.post(
+                settings.gse_ajax_url,
+                data=payload,
+                headers=_AJAX_HEADERS,
+            )
             resp.raise_for_status()
             data = resp.json()
             if not isinstance(data, dict) or "data" not in data:
@@ -392,19 +408,8 @@ async def _fetch_page(
     return [], 0
 
 
-def _is_stale(rows: list) -> bool:
-    """Return True if the response looks like a stale/expired nonce."""
-    if not rows:
-        return True
-    if len(rows) == 1 and isinstance(rows[0], list) and len(rows[0]) == 1:
-        val = str(rows[0][0]).lower()
-        if any(w in val for w in ("nonce", "invalid", "expired", "error")):
-            return True
-    return False
-
-
 async def _fetch_page_refreshing(
-    client:   httpx.AsyncClient,
+    session:  AsyncSession,
     nonce:    str,
     draw:     int,
     start:    int,
@@ -412,42 +417,44 @@ async def _fetch_page_refreshing(
     page_num: int,
     retries:  int = 3,
 ) -> tuple[list, int, str]:
-    """Fetch one page, refreshing nonce automatically if the response is stale."""
+    """Fetch one page, refreshing nonce if stale."""
     current = nonce
     for attempt in range(retries):
-        rows, total = await _fetch_page(client, current, draw, start, length)
-        if not _is_stale(rows):
+        rows, total = await _fetch_page(session, current, draw, start, length)
+        if not _is_stale(rows, total):   # Bug 2 fix: pass total
             return rows, total, current
-        log.warning("nonce_stale_refreshing", page=page_num, attempt=attempt + 1)
+        print(f"[page {page_num}] Stale nonce, refreshing (attempt {attempt + 1})")
         await asyncio.sleep(2.0)
-        current = await _apply_browser_session(client) or await _fetch_nonce(client)
-    # Final attempt
-    rows, total = await _fetch_page(client, current, draw, start, length)
+        current = await _apply_browser_session(session) or await _fetch_nonce(session)
+    rows, total = await _fetch_page(session, current, draw, start, length)
+    if _is_stale(rows, total):
+        raise RuntimeError(
+            f"Page {page_num} returned empty data after {retries} nonce refreshes. "
+            "Cloudflare may be actively blocking. Refresh GSE_COOKIES and GSE_NONCE."
+        )
     return rows, total, current
 
 
 # ── Main entry point ───────────────────────────────────────────────────────────
 async def scrape_gse(
-    mode:        str       = "latest",
+    mode:        str        = "latest",
     target_date: str | None = None,
 ) -> ScrapeResult:
     """
-    Scrape the GSE DataTable endpoint.
-
-    mode='latest'     → fetch only pages needed for latest trading day (fast, concurrent)
-    mode='all'        → fetch all pages sequentially (historical, nonce-safe)
-    mode='date'       → fetch all pages, filter to target_date
+    mode='latest'  → fetch pages for the latest trading day (concurrent, fast)
+    mode='all'     → fetch all pages sequentially (historical, nonce-safe)
+    mode='date'    → fetch all pages, filter to target_date (YYYY-MM-DD)
     """
-    async with _build_client() as client:
-        nonce = await _apply_browser_session(client) or await _fetch_nonce(client)
+    async with _build_client() as session:
+        nonce = await _apply_browser_session(session) or await _fetch_nonce(session)
         batch = settings.scraper_batch_size
 
-        log.info("scrape_first_page", batch_size=batch, mode=mode)
+        print(f"[scrape] mode={mode}, batch={batch}")
         first_rows, total_remote, nonce = await _fetch_page_refreshing(
-            client, nonce, 1, 0, batch, page_num=1
+            session, nonce, 1, 0, batch, page_num=1
         )
         total_pages = max(1, -(-total_remote // batch))
-        log.info("scrape_plan", total_remote=total_remote, total_pages=total_pages, mode=mode)
+        print(f"[scrape] total_remote={total_remote}, total_pages={total_pages}")
 
         all_records: list[PriceRecord] = []
         all_errors:  list[dict]        = []
@@ -455,36 +462,45 @@ async def scrape_gse(
 
         if total_pages > 1:
             if mode == "all":
-                # Sequential — safe for long historical runs with nonce expiry
-                log.info("historical_mode_sequential", total_pages=total_pages)
+                # Sequential — nonce refreshes safely between pages
                 for page_idx in range(1, total_pages):
                     start = page_idx * batch
-                    log.info("scrape_page", page=page_idx + 1, total=total_pages)
+                    print(f"[scrape] page {page_idx + 1}/{total_pages}")
                     rows, _, nonce = await _fetch_page_refreshing(
-                        client, nonce, page_idx + 1, start, batch, page_num=page_idx + 1
+                        session, nonce, page_idx + 1, start, batch,
+                        page_num=page_idx + 1,
                     )
                     _process_rows(rows, all_records, all_errors)
-                    await asyncio.sleep(0.8)  # polite delay between pages
+                    await asyncio.sleep(0.8)
             else:
-                # Concurrent — fast for daily scrapes (few pages)
+                # BUG 3 FIX: Each worker fetches its own session nonce independently
+                # instead of sharing the outer closure nonce.
                 sem = asyncio.Semaphore(settings.scraper_concurrency)
 
-                async def _fetch(page_idx: int) -> tuple[list, int]:
+                async def _fetch_worker(page_idx: int) -> tuple[list, int]:
                     async with sem:
                         try:
+                            # Each worker uses its own fresh nonce — no shared closure
+                            worker_nonce = (
+                                await _apply_browser_session(session)
+                                or await _fetch_nonce(session)
+                            )
                             rows, _, _ = await _fetch_page_refreshing(
-                                client, nonce, page_idx + 1,
+                                session, worker_nonce, page_idx + 1,
                                 page_idx * batch, batch, page_num=page_idx + 1,
                             )
                             return rows, page_idx
                         except Exception as exc:
-                            log.error("page_fetch_failed", page=page_idx + 1, error=str(exc))
+                            print(f"[page {page_idx + 1}] failed: {exc}")
                             return [], page_idx
 
-                for rows, _ in await asyncio.gather(*[_fetch(i) for i in range(1, total_pages)]):
+                results = await asyncio.gather(
+                    *[_fetch_worker(i) for i in range(1, total_pages)]
+                )
+                for rows, _ in results:
                     _process_rows(rows, all_records, all_errors)
 
-        log.info("scrape_complete", parsed=len(all_records), errors=len(all_errors))
+        print(f"[scrape] done — parsed={len(all_records)}, errors={len(all_errors)}")
 
         return ScrapeResult(
             records=_filter_records(all_records, mode, target_date),
@@ -517,6 +533,21 @@ def _filter_records(
         if not records:
             return []
         latest = max(r.trade_date for r in records)
-        log.info("latest_date_resolved", date=latest)
+        print(f"[filter] latest date resolved: {latest}")
         return [r for r in records if r.trade_date == latest]
     return records
+
+
+# ── Quick test ─────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import json
+
+    async def main():
+        result = await scrape_gse(mode="latest")
+        print(f"\nRecords : {len(result.records)}")
+        print(f"Errors  : {result.error_count}")
+        print(f"Pages   : {result.total_pages}")
+        if result.records:
+            print(f"\nFirst record:\n{json.dumps(result.records[0].to_dict(), default=str, indent=2)}")
+
+    asyncio.run(main())

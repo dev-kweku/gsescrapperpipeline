@@ -1,0 +1,306 @@
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T00:30:03.360779Z"}
+{"healthy":true,"server_time":"2026-03-16 00:30:06.884986+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:30:06.924849Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T00:30:13.280083Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:30:36.188542Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:30:36.219507Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:30:36.219507Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:30:36.220497Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T00:30:36.220497Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T00:41:42.537281Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:41:42.537281Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:41:42.546278Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:41:42.593284Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T00:41:42.594284Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T00:55:21.386057Z"}
+{"healthy":true,"server_time":"2026-03-16 00:55:24.174811+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:55:24.222170Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T00:55:26.236009Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.074093Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.085728Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:55:30.085728Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:55:30.086952Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T00:55:30.086952Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T00:59:06.192650Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T00:59:06.193649Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T00:59:06.207862Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T00:59:06.234167Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T00:59:06.234167Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:00:47.253794Z"}
+{"healthy":true,"server_time":"2026-03-16 01:00:49.492667+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:00:49.500375Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:00:50.013540Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.141573Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.142570Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T01:00:50.143572Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:04:40.986322Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:04:40.987327Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"(sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.DataError'>: invalid input for query argument $12: b'{}' ('bytes' object has no attribute 'encode')\n[SQL: INSERT INTO gse.scrape_jobs (job_id, job_type, status, target_date, total_pages, total_records, records_inserted, records_updated, records_skipped, error_message, error_stack, metadata, started_at, completed_at) VALUES ($1::UUID, $2::VARCHAR, $3::gse.scrapestatus, $4::DATE, $5::INTEGER, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::INTEGER, $10::VARCHAR, $11::VARCHAR, $12::JSONB, $13::TIMESTAMP WITH TIME ZONE, $14::TIMESTAMP WITH TIME ZONE) RETURNING gse.scrape_jobs.id, gse.scrape_jobs.created_at]\n[parameters: (UUID('d45955a3-eac3-49e2-a037-f61523020e8e'), 'historical', 'RUNNING', datetime.date(2026, 3, 13), 0, 0, 0, 0, 0, None, None, b'{}', datetime.datetime(2026, 3, 16, 1, 4, 40, 988324, tzinfo=datetime.timezone.utc), None)]\n(Background on this error at: https://sqlalche.me/e/20/dbapi)","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T01:04:41.758607Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:40.003523Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:08:40.004562Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:08:40.005565Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:08:40.007561Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:40.008563Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:08:44.220072Z"}
+{"healthy":true,"server_time":"2026-03-16 01:08:46.451836+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:08:46.457162Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:08:47.111069Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T01:17:30.880354Z"}
+{"healthy":true,"server_time":"2026-03-16 01:17:33.100508+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8371223,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:17:33.105324Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:33.673214Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.990807Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.991809Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:17:36.992806Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:17:36.993383Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T01:17:36.993383Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.429983Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.430985Z"}
+{"job_id":"4cd01ff8-b770-426e-971a-34127a3cc158","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:17:47.566709Z"}
+{"error":"","event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.513051Z"}
+{"event":"nonce_using_fallback","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.513644Z"}
+{"batch_size":100,"event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T01:18:37.514729Z"}
+{"error":"Server disconnected","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T01:20:21.167456Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Server disconnected","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T01:20:21.748492Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T01:21:51.643629Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T01:21:51.643629Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T01:21:51.644632Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T01:21:51.647630Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T01:21:51.647630Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T02:12:16.546936Z"}
+{"healthy":true,"server_time":"2026-03-16 02:12:21.051986+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:12:21.081146Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:12:35.446032Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.335758Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.367335Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:12:50.367335Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:12:50.368338Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T02:12:50.368338Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T02:21:49.379835Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:21:49.380835Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:21:49.431834Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:21:49.478800Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T02:21:49.479791Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T02:23:43.924253Z"}
+{"healthy":true,"server_time":"2026-03-16 02:23:46.188483+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:23:46.211227Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:23:48.102254Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:23:54.279229Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:23:54.296225Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:23:54.296225Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:23:54.296225Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T02:23:54.297227Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:25:14.512575Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:25:14.513586Z"}
+{"job_id":"156e6cb2-0aef-4b32-b6d4-434cfb74c241","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:25:14.857553Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/market-data/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","attempt":1,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:25:20.307516Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/market-data/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","attempt":2,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:25:27.868516Z"}
+{"error":"","attempt":3,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:26:03.965209Z"}
+{"event":"nonce_using_fallback","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:26:12.985271Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:26:12.986279Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:27:05.702077Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T02:27:05.924128Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T02:30:42.020373Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:30:42.020373Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:30:42.022371Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:30:42.024373Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T02:30:42.024373Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T02:31:15.101942Z"}
+{"healthy":true,"server_time":"2026-03-16 02:31:17.325610+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:31:17.321025Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:31:17.852719Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:31:17.971042Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:31:17.973102Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:31:17.973102Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:31:17.973102Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T02:31:17.974047Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:31:28.333701Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:31:28.334703Z"}
+{"job_id":"74078a16-cbfd-4300-af4a-223ee6e258c5","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:31:28.361594Z"}
+{"error":"","attempt":1,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:32:08.045880Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/market-data/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","attempt":2,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:32:15.653177Z"}
+{"error":"","attempt":3,"event":"nonce_fetch_failed","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:32:41.845184Z"}
+{"event":"nonce_using_fallback","level":"warning","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:32:50.862901Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:32:50.863956Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:34:41.226708Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T02:34:41.245973Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T02:51:22.321888Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:51:22.321888Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:51:22.323887Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:51:22.325839Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T02:51:22.326860Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T02:58:12.347037Z"}
+{"healthy":true,"server_time":"2026-03-16 02:58:14.613756+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T02:58:14.638076Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:58:16.437032Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:58:16.628257Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:58:16.653543Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T02:58:16.653543Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T02:58:16.653543Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T02:58:16.654540Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:58:41.101702Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:58:41.102704Z"}
+{"job_id":"73bad924-0d3c-4628-bc87-02e44b9f76e0","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:58:41.132689Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:58:42.192700Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T02:58:42.193703Z"}
+{"error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T02:59:28.181091Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Client error '403 Forbidden' for url 'https://gse.com.gh/wp-admin/admin-ajax.php'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T02:59:28.200387Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:03:36.416156Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:03:36.416156Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:03:36.418162Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:03:36.420745Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:03:36.421723Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:12:20.384193Z"}
+{"healthy":true,"server_time":"2026-03-16 03:12:22.658689+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:12:22.642822Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:12:23.234819Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:12:23.434793Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:12:23.436790Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:12:23.436790Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:12:23.436790Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:12:23.437793Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:12:58.780054Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:12:58.782053Z"}
+{"job_id":"2682a9ba-c519-4a9d-b2b8-335fd1df2a1e","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:12:58.809983Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:12:59.611556Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:12:59.612558Z"}
+{"event":"httpx_403_falling_back_to_browser","level":"warning","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:15:48.795758Z"}
+{"event":"browser_scraper_loading_page","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:16:13.913673Z"}
+{"error":"Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://gse.com.gh/market-data/\", waiting until \"networkidle\"\n","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:17:15.732016Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://gse.com.gh/market-data/\", waiting until \"networkidle\"\n","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:17:15.764412Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:19:08.090856Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:19:08.091928Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:19:08.092924Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:19:08.094922Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:19:08.095925Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:19:58.824638Z"}
+{"healthy":true,"server_time":"2026-03-16 03:20:01.026293+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:20:01.100885Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:20:01.645201Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:20:01.763250Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:20:01.765248Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:20:01.765248Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:20:01.765248Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:20:01.766250Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:20:45.478924Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:20:45.479920Z"}
+{"job_id":"3cdfa907-9340-49ed-a50b-871d9d4e50fc","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:20:45.508920Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:20:46.364924Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:20:46.364924Z"}
+{"event":"httpx_403_falling_back_to_browser","level":"warning","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:21:32.253857Z"}
+{"event":"browser_scraper_loading_page","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:21:35.068482Z"}
+{"nonce":"77ef878a17","event":"browser_nonce_extracted","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:22:00.728865Z"}
+{"error":"Page.evaluate: SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:22:01.137593Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Page.evaluate: SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:22:01.157047Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:24:05.889014Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:24:05.890580Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:24:05.891655Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:24:05.894652Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:24:05.894652Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:27:57.090887Z"}
+{"healthy":true,"server_time":"2026-03-16 03:27:59.379010+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:27:59.344257Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:27:59.954410Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:28:00.098827Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:28:00.100828Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:28:00.100828Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:28:00.100828Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:28:00.101830Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:28:21.637767Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:28:21.638826Z"}
+{"job_id":"b8aecb0a-c76a-4fed-97bb-623fa2a0a279","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:28:21.675923Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:28:22.479801Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:28:22.479801Z"}
+{"error":"","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:29:54.236212Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:29:54.722058Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:30:50.439772Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:30:50.440765Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:30:50.442766Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:30:50.445759Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:30:50.445759Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:30:58.469471Z"}
+{"healthy":true,"server_time":"2026-03-16 03:31:00.813448+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:31:00.841270Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:31:01.447147Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:31:01.585352Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:31:01.587347Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:31:01.587347Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:31:01.587347Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:31:01.588620Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:31:06.991853Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:31:06.993854Z"}
+{"job_id":"cb051daf-755c-48f3-b8f7-25a24bc6a3eb","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:31:07.020712Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:31:07.911334Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:31:07.912313Z"}
+{"event":"httpx_403_falling_back_to_browser","level":"warning","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:32:08.720989Z"}
+{"event":"browser_scraper_loading_page","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:32:10.447131Z"}
+{"nonce":"77ef878a17","event":"browser_nonce_extracted","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:32:38.261348Z"}
+{"event":"browser_fetch_error: {result}","level":"warning","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:32:38.358267Z"}
+{"response":"{}","event":"browser_first_page_no_data","level":"error","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:32:38.358267Z"}
+{"error":"Browser scraper got no data from admin-ajax.php. Cloudflare may still be blocking. Response: {}","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:32:38.463110Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Browser scraper got no data from admin-ajax.php. Cloudflare may still be blocking. Response: {}","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:32:38.480915Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:35:34.386145Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:35:34.387148Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:35:34.388814Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:35:34.392814Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:35:34.392814Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:35:42.752882Z"}
+{"healthy":true,"server_time":"2026-03-16 03:35:45.071817+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:35:45.120507Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:35:45.653946Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:35:45.770409Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:35:45.772413Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:35:45.772413Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:35:45.773410Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:35:45.773410Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:36:02.564443Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:36:02.565460Z"}
+{"job_id":"903c3277-996e-439d-89be-024f0e56a445","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:36:02.602761Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:36:03.423658Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:36:03.424655Z"}
+{"event":"httpx_403_falling_back_to_browser","level":"warning","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:38:02.669027Z"}
+{"event":"browser_scraper_loading_page","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:38:04.595057Z"}
+{"nonce":"77ef878a17","event":"browser_nonce_extracted","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:38:27.375080Z"}
+{"status":403,"url":"https://gse.com.gh/wp-admin/admin-ajax.php","event":"browser_request_non_200","level":"warning","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:38:28.584081Z"}
+{"response":"{}","event":"browser_first_page_no_data","level":"error","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:38:28.584081Z"}
+{"error":"Browser scraper got no data. Response: {}","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:38:28.692097Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Browser scraper got no data. Response: {}","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:38:28.733083Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:42:17.870344Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:42:17.871908Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:42:17.872939Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:42:17.874922Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:42:17.874922Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:42:24.822375Z"}
+{"healthy":true,"server_time":"2026-03-16 03:42:27.137623+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:42:27.129808Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:42:27.689406Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:42:27.807112Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:42:27.809112Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:42:27.809112Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:42:27.810136Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:42:27.810136Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:43:09.143894Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:43:09.144853Z"}
+{"job_id":"c5e8710e-3a0d-49f5-85c8-5972a6ffc5f2","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:43:09.187367Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:43:09.983861Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:43:09.983861Z"}
+{"event":"httpx_403_falling_back_to_browser","level":"warning","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:43:55.829196Z"}
+{"event":"browser_scraper_loading_page","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:43:57.516030Z"}
+{"nonce":"77ef878a17","event":"browser_nonce_extracted","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:44:25.479168Z"}
+{"count":2,"names":["cf_clearance","__cf_bm"],"event":"browser_cookies","level":"info","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:44:25.488816Z"}
+{"error":"http_error","status":403,"message":null,"preview":"","event":"browser_fetch_error","level":"warning","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:44:25.671914Z"}
+{"response":"{}","event":"browser_first_page_no_data","level":"error","logger":"app.scraper.browser_scraper","timestamp":"2026-03-16T03:44:25.672501Z"}
+{"error":"Browser scraper: no data from admin-ajax.php. Response: {}","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:44:25.860528Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"Browser scraper: no data from admin-ajax.php. Response: {}","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:44:25.900836Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T03:47:02.548623Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:47:02.548623Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:47:02.550619Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:47:02.552265Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T03:47:02.553226Z"}
+{"version":"2.0.0","env":"production","event":"gse_scraper_starting","level":"info","logger":"app.main","timestamp":"2026-03-16T03:47:09.222298Z"}
+{"healthy":true,"server_time":"2026-03-16 03:47:11.515651+00:00","version":"PostgreSQL 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu","db_size_bytes":8428567,"event":"database_connected","level":"info","logger":"app.db.database","timestamp":"2026-03-16T03:47:11.524770Z"}
+{"year":2026,"count":32,"event":"holidays_seeded","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:47:12.374385Z"}
+{"event":"Adding job tentatively -- it will be properly scheduled when the scheduler starts","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:47:12.510535Z"}
+{"event":"Added job \"GSE Daily Scrape\" to job store \"default\"","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:47:12.514173Z"}
+{"event":"Scheduler started","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T03:47:12.514173Z"}
+{"cron":"Mon-Fri 18:00","timezone":"Africa/Accra","next_run":"2026-03-16T18:00:00+00:00","event":"scheduler_started","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T03:47:12.515121Z"}
+{"event":"gse_scraper_ready","level":"info","logger":"app.main","timestamp":"2026-03-16T03:47:12.515121Z"}
+{"mode":"historical","target_date":null,"force":true,"dry_run":false,"event":"pipeline_start","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:47:35.173073Z"}
+{"date":"2026-03-13","event":"pipeline_date_resolved","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:47:35.174072Z"}
+{"job_id":"c4373e8c-ba53-4693-a8b2-58bdd3bea31e","event":"pipeline_job_created","level":"info","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:47:35.213512Z"}
+{"nonce":"77ef878a17","cookies":8,"event":"using_browser_session","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:47:36.073140Z"}
+{"batch_size":25,"mode":"all","event":"scrape_first_page","level":"info","logger":"app.scraper.gse_scraper","timestamp":"2026-03-16T03:47:36.074165Z"}
+{"error":"","exc_info":true,"event":"pipeline_failed","level":"error","logger":"app.scraper.pipeline","timestamp":"2026-03-16T03:50:47.894976Z"}
+{"path":"/api/v1/scraper/trigger/historical","error":"","exc_info":true,"event":"unhandled_exception","level":"error","logger":"app.main","timestamp":"2026-03-16T03:50:47.940016Z"}
+{"event":"gse_scraper_shutting_down","level":"info","logger":"app.main","timestamp":"2026-03-16T04:04:00.401052Z"}
+{"event":"scheduler_stopped","level":"info","logger":"app.scheduler.scheduler","timestamp":"2026-03-16T04:04:00.402044Z"}
+{"event":"Scheduler has been shut down","level":"info","logger":"apscheduler.scheduler","timestamp":"2026-03-16T04:04:00.403043Z"}
+{"event":"database_pool_closed","level":"info","logger":"app.db.database","timestamp":"2026-03-16T04:04:00.412604Z"}
+{"event":"gse_scraper_stopped","level":"info","logger":"app.main","timestamp":"2026-03-16T04:04:00.412604Z"}
