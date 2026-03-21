@@ -1,4 +1,13 @@
+"""
+GSE Trading Data Scraper — Selenium + PostgreSQL
+=================================================
+Reads live DOM via JavaScript after each page click.
+Uses DataTables _iDisplayStart to confirm each page advance.
 
+Usage:
+    python scrapper.py
+    python scrapper.py --resume-from-page 47
+"""
 
 from __future__ import annotations
 
@@ -6,32 +15,25 @@ import argparse
 import asyncio
 import os
 import re
-import sys
 import time
 import traceback
-import uuid
 from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
-from typing import Any, cast
+from typing import Any
 
 import asyncpg
-import pandas as pd
-from bs4 import BeautifulSoup, Tag
 from dotenv import load_dotenv
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.webdriver import WebDriver as ChromeDriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    StaleElementReferenceException,
-    TimeoutException,
-)
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
 load_dotenv()
+import sys as _sys
+_sys.stdout.reconfigure(line_buffering=True)  # type: ignore[attr-defined]
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 DB_HOST     = os.getenv("DB_HOST",     "localhost")
@@ -41,7 +43,6 @@ DB_USER     = os.getenv("DB_USER",     "gse_user")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 DB_SCHEMA   = os.getenv("DB_SCHEMA",   "gse")
 
-# ── GSE column names (¢ = U+00A2) ─────────────────────────────────────────────
 COL_DATE       = "Daily Date"
 COL_CODE       = "Share Code"
 COL_YEAR_HIGH  = "Year High (GH\u00a2)"
@@ -77,7 +78,7 @@ def _int(v: Any) -> int | None:
 
 def _parse_date(v: Any) -> date | None:
     s = str(v or "").strip()
-    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y", "%d-%m-%Y"):
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y"):
         try:
             return datetime.strptime(s, fmt).date()
         except ValueError:
@@ -85,65 +86,47 @@ def _parse_date(v: Any) -> date | None:
     return None
 
 
-def clean_numeric_value(value_str: object) -> float:
-    s = str(value_str).strip() if value_str is not None else ""
-    if s in ("", "nan", "none", "null", "n/a", "-"):
-        return 0.0
-    cleaned = re.sub(r"[^\d.]", "", s)
-    try:
-        return float(cleaned) if cleaned else 0.0
-    except ValueError:
-        return 0.0
-
-
-# ── Row parser ─────────────────────────────────────────────────────────────────
 def rows_to_records(
-    raw_rows: list[list[str]],
-    headers:  list[str],
-    seen:     set[tuple],
-) -> tuple[list[dict], list[str]]:
-    """
-    Convert raw HTML rows to DB-ready dicts.
-    Returns (records, skip_reasons) so callers can log why rows were skipped.
-    """
-    records:     list[dict] = []
-    skip_reasons: list[str] = []
+    js_rows:   list[list[str]],
+    headers:   list[str],
+    last_date: date | None,
+) -> tuple[list[dict], date | None]:
+    records: list[dict] = []
 
-    for cells in raw_rows:
-        if len(cells) < len(headers):
-            skip_reasons.append(f"too few cells: got {len(cells)}, expected {len(headers)}")
+    try:
+        date_idx = headers.index(COL_DATE)
+    except ValueError:
+        date_idx = 0
+
+    try:
+        code_idx = headers.index(COL_CODE)
+    except ValueError:
+        code_idx = 1
+
+    for cells in js_rows:
+        if len(cells) <= max(date_idx, code_idx):
+            continue
+
+        raw_d = cells[date_idx].strip()
+        if raw_d:
+            parsed = _parse_date(raw_d)
+            if parsed:
+                last_date = parsed
+
+        if not last_date:
+            continue
+
+        share_code = str(cells[code_idx] or "").strip().upper()
+        if not share_code:
             continue
 
         row = dict(zip(headers, cells))
-
-        trade_date: date | None = None
-        raw_d = row.get(COL_DATE, "")
-        if raw_d:
-            try:
-                trade_date = pd.Timestamp(raw_d).date()
-            except Exception:
-                trade_date = _parse_date(raw_d)
-
-        share_code = str(row.get(COL_CODE) or "").strip().upper()
-
-        if not trade_date:
-            skip_reasons.append(f"invalid date: {repr(raw_d)}")
-            continue
-        if not share_code:
-            skip_reasons.append("empty share code")
-            continue
-
-        key = (trade_date, share_code)
-        if key in seen:
-            skip_reasons.append(f"duplicate: {share_code} {trade_date}")
-            continue
-        seen.add(key)
 
         def g(col: str) -> Any:
             return row.get(col)
 
         records.append({
-            "trade_date":                  trade_date,
+            "trade_date":                  last_date,
             "share_code":                  share_code,
             "year_high":                   _dec(g(COL_YEAR_HIGH)),
             "year_low":                    _dec(g(COL_YEAR_LOW)),
@@ -158,7 +141,89 @@ def rows_to_records(
             "total_value_traded":          _dec(g(COL_VALUE)),
         })
 
-    return records, skip_reasons
+    return records, last_date
+
+
+# ── DOM readers ────────────────────────────────────────────────────────────────
+def js_read_rows(driver: ChromeDriver) -> list[list[str]]:
+    """Read ALL visible rows from live DOM using JavaScript."""
+    return driver.execute_script("""
+        var rows = [];
+        document.querySelectorAll('table#table_1 tbody tr').forEach(function(tr) {
+            var cells = [];
+            tr.querySelectorAll('td').forEach(function(td) {
+                cells.push(td.innerText.trim());
+            });
+            if (cells.length > 1) rows.push(cells);
+        });
+        return rows;
+    """) or []
+
+
+def js_get_display_start(driver: ChromeDriver) -> int:
+    """Get DataTables _iDisplayStart — the row offset of the current page."""
+    val = driver.execute_script("""
+        try {
+            return jQuery('#table_1').DataTable().settings()[0]._iDisplayStart;
+        } catch(e) { return -1; }
+    """)
+    try:
+        return int(val)
+    except Exception:
+        return -1
+
+
+def js_get_total_pages(driver: ChromeDriver) -> int:
+    val = driver.execute_script("""
+        try {
+            var info = jQuery('#table_1').DataTable().page.info();
+            return info.pages;
+        } catch(e) { return 0; }
+    """)
+    try:
+        return int(val)
+    except Exception:
+        return 0
+
+
+def js_get_headers(driver: ChromeDriver) -> list[str]:
+    return driver.execute_script("""
+        var h = [];
+        document.querySelectorAll('table#table_1 thead th').forEach(function(th) {
+            h.push(th.innerText.trim());
+        });
+        return h;
+    """) or []
+
+
+def js_click_next(driver: ChromeDriver) -> bool:
+    """Click Next via JS directly on the button element."""
+    result = driver.execute_script("""
+        var btn = document.querySelector('.paginate_button.next');
+        if (!btn) return 'not_found';
+        if (btn.classList.contains('disabled')) return 'disabled';
+        btn.click();
+        return 'clicked';
+    """)
+    return result == 'clicked'
+
+
+def wait_for_display_start_change(
+    driver:    ChromeDriver,
+    old_start: int,
+    timeout:   int = 15,
+) -> bool:
+    """
+    Poll until DataTables _iDisplayStart changes.
+    This is the most reliable way to confirm a new page has loaded —
+    it changes the instant the AJAX response updates the DataTables state.
+    """
+    for _ in range(timeout * 2):
+        time.sleep(0.5)
+        new_start = js_get_display_start(driver)
+        if new_start != old_start and new_start >= 0:
+            return True
+    return False
 
 
 # ── Database ───────────────────────────────────────────────────────────────────
@@ -167,9 +232,7 @@ async def create_tables(conn: asyncpg.Connection) -> None:
         CREATE TABLE IF NOT EXISTS {DB_SCHEMA}.stock_listings (
             id           SERIAL      PRIMARY KEY,
             share_code   VARCHAR(20) NOT NULL UNIQUE,
-            company_name VARCHAR(255),
             is_active    BOOLEAN     DEFAULT true,
-            listed_at    DATE,
             last_seen_at TIMESTAMPTZ DEFAULT NOW(),
             created_at   TIMESTAMPTZ DEFAULT NOW()
         )
@@ -197,7 +260,7 @@ async def create_tables(conn: asyncpg.Connection) -> None:
     """)
     await conn.execute(f"""
         CREATE TABLE IF NOT EXISTS {DB_SCHEMA}.scrape_jobs (
-            id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+            id              SERIAL      PRIMARY KEY,
             status          VARCHAR(50) DEFAULT 'running',
             mode            VARCHAR(50) DEFAULT 'historical',
             started_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -208,71 +271,45 @@ async def create_tables(conn: asyncpg.Connection) -> None:
             error_message   TEXT
         )
     """)
+    for col_sql in [
+        f"ALTER TABLE {DB_SCHEMA}.scrape_jobs ADD COLUMN IF NOT EXISTS pages_scraped INT DEFAULT 0",
+        f"ALTER TABLE {DB_SCHEMA}.scrape_jobs ADD COLUMN IF NOT EXISTS resume_from INT DEFAULT 1",
+        f"ALTER TABLE {DB_SCHEMA}.scrape_jobs ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'historical'",
+    ]:
+        await conn.execute(col_sql)
     for sql in [
         f"CREATE INDEX IF NOT EXISTS idx_dp_trade_date ON {DB_SCHEMA}.daily_prices (trade_date DESC)",
         f"CREATE INDEX IF NOT EXISTS idx_dp_share_code ON {DB_SCHEMA}.daily_prices (share_code)",
-        f"CREATE INDEX IF NOT EXISTS idx_dp_date_code  ON {DB_SCHEMA}.daily_prices (trade_date DESC, share_code)",
     ]:
         await conn.execute(sql)
     print("Tables ready.")
 
 
-# ── Improvement 1: scrape_jobs tracking ───────────────────────────────────────
 async def job_start(conn: asyncpg.Connection, resume_from: int) -> str:
-    """Insert a scrape_jobs row and return the job id."""
-    job_id = str(uuid.uuid4())
-    await conn.execute(
-        f"""
-        INSERT INTO {DB_SCHEMA}.scrape_jobs (id, status, mode, resume_from)
-        VALUES ($1, 'running', 'historical', $2)
-        """,
-        job_id, resume_from,
+    row = await conn.fetchrow(
+        f"INSERT INTO {DB_SCHEMA}.scrape_jobs (status, mode, resume_from) "
+        f"VALUES ('running', 'historical', $1) RETURNING id::text",
+        resume_from,
     )
-    print(f"Job started  : {job_id}")
+    job_id = str(row["id"]) if row else "0"
+    print(f"Job started : {job_id}")
     return job_id
 
 
-async def job_update(
-    conn:    asyncpg.Connection,
-    job_id:  str,
-    pages:   int,
-    records: int,
-) -> None:
-    """Update progress on the current job (called after every page)."""
-    await conn.execute(
-        f"""
-        UPDATE {DB_SCHEMA}.scrape_jobs
-        SET pages_scraped = $2, records_scraped = $3
-        WHERE id = $1
-        """,
-        job_id, pages, records,
-    )
-
-
-async def job_finish(
-    conn:          asyncpg.Connection,
-    job_id:        str,
-    pages:         int,
-    records:       int,
-    status:        str = "completed",
-    error_message: str | None = None,
-) -> None:
-    """Mark the job as completed or failed."""
-    await conn.execute(
-        f"""
-        UPDATE {DB_SCHEMA}.scrape_jobs
-        SET status          = $2,
-            finished_at     = NOW(),
-            pages_scraped   = $3,
-            records_scraped = $4,
-            error_message   = $5
-        WHERE id = $1
-        """,
-        job_id, status, pages, records, error_message,
-    )
-    print(f"Job {status}: {job_id}")
-    print(f"  Pages scraped  : {pages:,}")
-    print(f"  Records saved  : {records:,}")
+async def job_finish(conn: asyncpg.Connection, job_id: str,
+                     pages: int, records: int,
+                     status: str = "completed",
+                     error: str | None = None) -> None:
+    try:
+        await conn.execute(
+            f"UPDATE {DB_SCHEMA}.scrape_jobs "
+            f"SET status=$2, finished_at=NOW(), pages_scraped=$3, "
+            f"records_scraped=$4, error_message=$5 WHERE id::text=$1",
+            job_id, status, pages, records, error,
+        )
+    except Exception:
+        pass
+    print(f"Job {status}: pages={pages:,}  records={records:,}")
 
 
 async def upsert_page(conn: asyncpg.Connection, records: list[dict]) -> int:
@@ -280,12 +317,9 @@ async def upsert_page(conn: asyncpg.Connection, records: list[dict]) -> int:
         return 0
     codes = list({r["share_code"] for r in records})
     await conn.executemany(
-        f"""
-        INSERT INTO {DB_SCHEMA}.stock_listings (share_code, is_active)
-        VALUES ($1, true)
-        ON CONFLICT (share_code) DO UPDATE
-          SET last_seen_at = NOW(), is_active = true
-        """,
+        f"INSERT INTO {DB_SCHEMA}.stock_listings (share_code, is_active) "
+        f"VALUES ($1, true) ON CONFLICT (share_code) DO UPDATE "
+        f"SET last_seen_at=NOW(), is_active=true",
         [(c,) for c in codes],
     )
     result = await conn.execute(
@@ -300,7 +334,7 @@ async def upsert_page(conn: asyncpg.Connection, records: list[dict]) -> int:
             total_value_traded
         )
         SELECT * FROM UNNEST(
-            $1::DATE[],    $2::VARCHAR[],
+            $1::DATE[], $2::VARCHAR[],
             $3::NUMERIC[], $4::NUMERIC[],
             $5::NUMERIC[], $6::NUMERIC[],
             $7::NUMERIC[], $8::NUMERIC[],
@@ -339,253 +373,144 @@ async def upsert_page(conn: asyncpg.Connection, records: list[dict]) -> int:
     return int(result.split()[-1]) if result else 0
 
 
-# ── Selenium helpers ───────────────────────────────────────────────────────────
-def setup_driver() -> WebDriver:
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
-    )
-    options.add_argument("--log-level=3")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--disable-infobars")
-    try:
-        from webdriver_manager.chrome import ChromeDriverManager
-        service: Service = Service(ChromeDriverManager().install())
-        driver: WebDriver = WebDriver(service=service, options=options)
-        print("ChromeDriver ready")
-        return driver
-    except Exception as exc:
-        print(f"ChromeDriver failed: {exc}")
-        raise
-
-
-def _click_next(driver: WebDriver) -> bool:
-    for by, sel in [
-        (By.CSS_SELECTOR, ".paginate_button.next"),
-        (By.ID,           "table_1_next"),
-        (By.XPATH,        "//a[contains(@class,'next') and contains(@class,'paginate_button')]"),
-        (By.XPATH,        "//a[contains(text(),'Next')]"),
-        (By.XPATH,        "//li[contains(@class,'next')]/a"),
-    ]:
-        try:
-            found: WebElement = driver.find_element(by, sel)
-            cls: str = found.get_attribute("class") or ""
-            if "disabled" in cls:
-                return False
-            for name, script in [
-                ("direct",      None),
-                ("js-click",    "arguments[0].click();"),
-                ("js-dispatch", "arguments[0].dispatchEvent(new MouseEvent('click',{bubbles:true}));"),
-            ]:
-                try:
-                    if script is None:
-                        found.click()
-                    else:
-                        driver.execute_script(script, found)
-                    print(f"  Next ({name})")
-                    return True
-                except Exception:
-                    continue
-        except (NoSuchElementException, StaleElementReferenceException):
-            continue
-    return False
-
-
-def _get_text(tag: Tag, selector: str) -> list[str]:
-    return [cast(str, td.get_text(strip=True)) for td in tag.find_all(selector)]
-
-
-# ── Improvement 3: jump to a specific page ────────────────────────────────────
-def _jump_to_page(driver: WebDriver, target_page: int) -> None:
-    """
-    Use the DataTables JS API to jump directly to a page number.
-    Much faster than clicking Next N times.
-    """
-    if target_page <= 1:
-        return
-    print(f"Jumping to page {target_page} via DataTables API...")
-    try:
-        driver.execute_script(f"""
-            var tables = jQuery('table.wpDataTable');
-            if (tables.length && tables.DataTable) {{
-                tables.DataTable().page({target_page - 1}).draw(false);
-            }}
-        """)
-        # Wait for the table to update
-        time.sleep(3)
-        print(f"Jumped to page {target_page}.")
-    except Exception as exc:
-        print(f"Jump failed: {exc} — will click Next {target_page - 1} times instead")
-        for i in range(target_page - 1):
-            if not _click_next(driver):
-                break
-            time.sleep(1)
-            print(f"  Navigated to page {i + 2}")
-
-
 # ── Main ───────────────────────────────────────────────────────────────────────
 async def run_scraper(resume_from: int = 1) -> None:
     t0            = datetime.now(timezone.utc)
-    ts_start      = t0.strftime("%Y%m%d_%H%M%S")
-    csv_path      = f"gse_partial_{ts_start}.csv"
     total_written = 0
     page_count    = 0
-    total_records = 0
-    all_data:     list[list[str]] = []
-    headers_list: list[str]       = []
-    seen:         set[tuple]      = set()
-    job_id:       str             = ""
+    last_date:    date | None = None
+    job_id        = ""
+    final_status  = "completed"
+    error_msg:    str | None = None
 
-    print(f"Starting GSE scraper...")
-    print(f"Resume from page  : {resume_from}")
-    print(f"Progressive save  : {csv_path}")
-    print(f"Database          : {DB_NAME} on {DB_HOST}\n")
+    print(f"GSE Historical Scraper")
+    print(f"Resume from page : {resume_from}")
+    print(f"Database         : {DB_NAME} on {DB_HOST}\n")
 
-    print("Connecting to database...")
     conn = await asyncpg.connect(
         host=DB_HOST, port=DB_PORT,
         database=DB_NAME, user=DB_USER, password=DB_PASSWORD,
     )
     await create_tables(conn)
-
-    # Improvement 1: record job start
     job_id = await job_start(conn, resume_from)
 
-    driver: WebDriver | None = None
-    final_status = "completed"
-    error_msg:  str | None = None
+    driver: ChromeDriver | None = None
 
     try:
-        driver = setup_driver()
+        options = ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        )
+        options.add_argument("--log-level=3")
+        options.add_argument("--blink-settings=imagesEnabled=false")
+
+        from webdriver_manager.chrome import ChromeDriverManager
+        service = Service(ChromeDriverManager().install())
+        driver  = ChromeDriver(service=service, options=options)
+        print(f"ChromeDriver ready")
         print(f"Browser: {driver.capabilities['browserVersion']}")
 
         driver.get("https://gse.com.gh/trading-and-data/")
         time.sleep(10)
 
-        try:
-            WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "table.wpDataTable"))
-            )
-            print("Table found.")
-        except TimeoutException:
-            driver.save_screenshot("gse_no_table.png")
-            raise RuntimeError("Table not found on page.")
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "table.wpDataTable"))
+        )
+        print("Table found.")
 
-        for sel in [".dataTables_info", ".wpDataTable-info", ".table-info"]:
-            try:
-                text = driver.find_element(By.CSS_SELECTOR, sel).text
-                m    = re.search(r"of ([\d,]+) entries", text)
-                if m:
-                    total_records = int(m.group(1).replace(",", ""))
-                    pages_est     = (total_records + 25) // 26
-                    print(f"Total records : {total_records:,}  (~{pages_est} pages)\n")
-                    break
-            except NoSuchElementException:
-                continue
+        # Get total pages
+        total_pages = js_get_total_pages(driver)
+        total_records_el = driver.execute_script("""
+            try { return jQuery('#table_1').DataTable().page.info().recordsTotal; }
+            catch(e) { return 0; }
+        """)
+        print(f"Total records : {total_records_el:,}  (~{total_pages:,} pages)")
 
-        # Improvement 3: jump to resume page if set
+        # Get headers
+        headers = js_get_headers(driver)
+        print(f"Headers: {headers}\n")
+
+        # Jump to resume page
         if resume_from > 1:
-            _jump_to_page(driver, resume_from)
+            print(f"Jumping to page {resume_from}...")
+            driver.execute_script(
+                f"jQuery('#table_1').DataTable().page({resume_from - 1}).draw(false);"
+            )
+            time.sleep(5)
             page_count = resume_from - 1
 
         consecutive_empty = 0
 
-        while consecutive_empty < 3:
-            page_count += 1
+        while True:
+            # Capture _iDisplayStart BEFORE reading rows
+            start_before = js_get_display_start(driver)
+            page_count  += 1
 
-            soup      = BeautifulSoup(driver.page_source, "html.parser")
-            raw_table = soup.find("table", {"class": "wpDataTable"})
-            if not isinstance(raw_table, Tag):
+            # Read rows from LIVE DOM (not page_source)
+            js_rows = js_read_rows(driver)
+
+            if not js_rows:
                 consecutive_empty += 1
-                continue
-            table: Tag = raw_table
-
-            if not headers_list:
-                raw_header = table.find("tr")
-                if not isinstance(raw_header, Tag):
+                print(f"Page {page_count:>5}  | empty (consecutive={consecutive_empty})")
+                if consecutive_empty >= 3:
                     break
-                headers_list = _get_text(raw_header, "th")
-                print(f"Headers: {headers_list}\n")
-
-            page_rows: list[list[str]] = []
-            for row in table.find_all("tr")[1:]:
-                if not isinstance(row, Tag):
-                    continue
-                cells = _get_text(row, "td")
-                if len(cells) > 1:
-                    page_rows.append(cells)
-
-            if not page_rows:
-                consecutive_empty += 1
-                # Improvement 2: log why page has no rows
-                print(f"Page {page_count}: no rows found in HTML table.")
-                continue
-
-            consecutive_empty = 0
-            all_data.extend(page_rows)
-
-            # Parse and save this page
-            page_records, skip_reasons = rows_to_records(page_rows, headers_list, seen)
-
-            # Improvement 2: log skip reasons when saved=0
-            if not page_records:
-                print(f"Page {page_count:>4}  |  rows={len(page_rows)}  saved=0  "
-                      f"total_db={total_written:,}  total_scraped={len(all_data):,}")
-                if skip_reasons:
-                    unique_reasons = list(dict.fromkeys(skip_reasons))[:3]
-                    print(f"  Skipped because: {'; '.join(unique_reasons)}")
             else:
-                try:
-                    written        = await upsert_page(conn, page_records)
+                consecutive_empty = 0
+                records, last_date = rows_to_records(js_rows, headers, last_date)
+
+                if records:
+                    unique_dates = sorted({r["trade_date"] for r in records})
+                    written        = await upsert_page(conn, records)
                     total_written += written
                     print(
-                        f"Page {page_count:>4}  |  "
-                        f"rows={len(page_rows)}  "
-                        f"saved={written}  "
+                        f"Page {page_count:>5}  |  "
+                        f"rows={len(js_rows)}  "
+                        f"upserted={written}  "
                         f"total_db={total_written:,}  "
-                        f"total_scraped={len(all_data):,}"
+                        f"dates={unique_dates}"
                     )
-                    # Improvement 1: update job progress after every page
-                    await job_update(conn, job_id, page_count, total_written)
-                except Exception as db_exc:
-                    print(f"Page {page_count} DB error: {db_exc}")
+                    await conn.execute(
+                        f"UPDATE {DB_SCHEMA}.scrape_jobs "
+                        f"SET pages_scraped=$2, records_scraped=$3 WHERE id::text=$1",
+                        job_id, page_count, total_written,
+                    )
+                else:
+                    print(f"Page {page_count:>5}  |  rows={len(js_rows)}  parsed=0")
 
-            # CSV checkpoint every 10 pages
-            if page_count % 10 == 0:
-                pd.DataFrame(all_data, columns=headers_list).to_csv(csv_path, index=False)
-                print(f"  CSV checkpoint → {csv_path}")
-
-            if total_records > 0 and len(all_data) >= total_records:
-                print("\nAll records collected.")
+            # Check if last page
+            if total_pages > 0 and page_count >= total_pages:
+                print("All pages complete.")
                 break
 
-            if not _click_next(driver):
-                print("\nLast page reached.")
+            # Click Next via JS
+            click_result = js_click_next(driver)
+            if click_result == 'disabled' or not click_result:
+                print("Last page reached.")
                 break
 
-            # Wait for table to update
-            time.sleep(1)
-            try:
-                sel_first = "table.wpDataTable tbody tr:first-child td:first-child"
-                old_text  = driver.find_element(By.CSS_SELECTOR, sel_first).text
-                for _ in range(20):
-                    time.sleep(0.5)
-                    new_text = driver.find_element(By.CSS_SELECTOR, sel_first).text
-                    if new_text != old_text:
-                        break
-            except Exception:
-                time.sleep(3)
+            # Wait for _iDisplayStart to change — confirms new data in DOM
+            changed = wait_for_display_start_change(driver, start_before, timeout=15)
+            if not changed:
+                # Retry once
+                js_click_next(driver)
+                changed = wait_for_display_start_change(driver, start_before, timeout=10)
+                if not changed:
+                    new_start = js_get_display_start(driver)
+                    print(f"  WARNING: page did not advance "
+                          f"(start={start_before} → {new_start})")
+                    # Continue anyway — read whatever is in DOM
+                    continue
 
     except KeyboardInterrupt:
         final_status = "stopped"
-        print(f"\nStopped by user at page {page_count}.")
-        print(f"Resume with:  python scrapper.py --resume-from-page {page_count}")
+        print(f"\nStopped at page {page_count}.")
+        print(f"Resume: python scrapper.py --resume-from-page {page_count}")
 
     except Exception as exc:
         final_status = "failed"
@@ -597,40 +522,23 @@ async def run_scraper(resume_from: int = 1) -> None:
         if driver:
             driver.quit()
             print("Browser closed.")
-
-        # Improvement 1: mark job as finished
         if job_id:
             await job_finish(conn, job_id, page_count, total_written,
                              final_status, error_msg)
-
         await conn.close()
-        print("Database connection closed.")
-
-    # Final CSV
-    if all_data and headers_list:
-        final_csv = f"gse_complete_{ts_start}.csv"
-        pd.DataFrame(all_data, columns=headers_list).to_csv(final_csv, index=False)
-        print(f"\nFinal CSV : {final_csv}")
+        print("DB closed.")
 
     elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
     mins, secs = divmod(int(elapsed), 60)
-    print(f"Total DB rows  : {total_written:,}")
-    print(f"Total scraped  : {len(all_data):,}")
+    print(f"\nTotal upserted : {total_written:,}")
     print(f"Time elapsed   : {mins}m {secs}s")
-    print(f"\nVerify in psql:")
+    print(f"\nVerify:")
     print(f"  SELECT COUNT(*) FROM {DB_SCHEMA}.daily_prices;")
-    print(f"  SELECT * FROM {DB_SCHEMA}.scrape_jobs ORDER BY started_at DESC LIMIT 5;")
+    print(f"  SELECT DISTINCT trade_date FROM {DB_SCHEMA}.daily_prices ORDER BY 1 DESC LIMIT 10;")
 
 
-# ── CLI ────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="GSE Trading Data Scraper")
-    parser.add_argument(
-        "--resume-from-page",
-        type=int,
-        default=1,
-        metavar="N",
-        help="Resume scraping from page N (default: 1)",
-    )
+    parser = argparse.ArgumentParser(description="GSE Scraper")
+    parser.add_argument("--resume-from-page", type=int, default=1, metavar="N")
     args = parser.parse_args()
     asyncio.run(run_scraper(resume_from=args.resume_from_page))
